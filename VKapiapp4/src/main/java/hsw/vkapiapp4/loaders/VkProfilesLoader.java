@@ -1,22 +1,24 @@
 package hsw.vkapiapp4.loaders;
 
-
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.UrlEncodedContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.Key;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import hsw.vkapiapp4.vk.ApiResponse;
 import hsw.vkapiapp4.vk.VkProfile;
@@ -32,16 +34,19 @@ public class VkProfilesLoader extends AsyncTaskLoader<List<VkProfile>> {
         Log.d("VkLoader", "Constructor");
     }
 
-    /**
-     * URL for VK API.
-     */
-    public static class VkUrl extends GenericUrl {
-        public VkUrl(String encodedUrl) {
-            super(encodedUrl);
+    private HttpContent createProfileRequestContent(int first_id, int last_id) {
+        StringBuilder sb = new StringBuilder();
+        for (int id = first_id; id <= last_id; id++) {
+            if (sb.length() > 0) {
+                sb.append(",");
+            }
+            sb.append(Integer.toString(id));
         }
 
-        @Key
-        public String fields;
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("v", "5.2");
+        map.put("user_ids", sb.toString());
+        return new UrlEncodedContent(map);
     }
 
     @Override
@@ -57,13 +62,17 @@ public class VkProfilesLoader extends AsyncTaskLoader<List<VkProfile>> {
                     }
                     );
 
-            VkUrl url = new VkUrl("http://api.vk.com/method/users.get?v=5.2&user_ids=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16");
-            HttpRequest request = requestFactory.buildGetRequest(url);
+            GenericUrl url = new GenericUrl("http://api.vk.com/method/users.get");
+            HttpContent content = createProfileRequestContent(1, 1000);
+            Log.d("VkLoader", "URL = " + url);
+            Log.d("VkLoader", "Content = " + content);
+            HttpRequest request = requestFactory.buildPostRequest(url, content);
             Log.d("VkLoader", "Send req");
             ApiResponse response = request.execute().parseAs(ApiResponse.class);
             Log.d("VkLoader", "Parse response");
-            this.profiles = response.profiles;
-            return this.profiles;
+            profiles = response.profiles;
+            Log.d("VkLoader", "Got " + profiles.size() + " profiles");
+            return profiles;
         } catch (Throwable t) {
             //t.printStackTrace();
             throw new RuntimeException(t);
