@@ -4,6 +4,9 @@ import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
 
 public class VkProfile extends GenericJson {
+
+    public static final String[] columnNames = {"id", "first_name", "last_name"};
+
     @Key
     public int id;
 
@@ -12,6 +15,10 @@ public class VkProfile extends GenericJson {
 
     @Key
     public String last_name = "";
+
+    public static String[] getColumnNames() {
+        return columnNames;
+    }
 
     public VkProfile() {
     }
