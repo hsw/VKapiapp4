@@ -167,7 +167,7 @@ public class VkProfilesProvider extends ContentProvider {
             throw new RuntimeException(t);
         }
 
-        VkProfilesCursor cursor = new VkProfilesCursor(projection);
+        VkProfilesCursor cursor = new VkProfilesCursor(projection, last_id - first_id + 1);
         cursor.fill(profiles);
         return cursor;
     }

@@ -21,6 +21,11 @@ public class VkProfilesCursor extends MatrixCursor {
         Log.d("VkLoader", "cursor columnNames: " + Arrays.toString(columnNames));
     }
 
+    public VkProfilesCursor(String[] columnNames, int initialCapacity) {
+        super(columnNames, initialCapacity);
+        Log.d("VkLoader", "cursor columnNames: " + Arrays.toString(columnNames));
+    }
+
     public void fill(final List<VkProfile> profiles) {
         final String[] columnNames = getColumnNames();
         final int columnNamesCount = columnNames.length;
@@ -45,5 +50,11 @@ public class VkProfilesCursor extends MatrixCursor {
             Log.d("VkLoader", "cursor addRow: " + row);
             addRow(row);
         }
+    }
+
+    @Override
+    public int getType(int column) {
+        Log.d("VkLoader", "cursor getType " + column);
+        return super.getType(column);
     }
 }

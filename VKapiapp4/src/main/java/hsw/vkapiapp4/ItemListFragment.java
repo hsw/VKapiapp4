@@ -57,7 +57,6 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
         Log.d("VkLoader", "onCreateLoader");
-        //return new VkProfilesLoader(getActivity());
         switch (loaderID) {
             case VKPROFILES_LOADER:
                 return new CursorLoader(
@@ -65,7 +64,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
                         mDataUrl,
                         mProjection,
                         null,
-                        null,
+                        new String[]{"101", "200"},
                         null
                 );
             default:
@@ -77,8 +76,6 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.d("VkLoader", "onLoadFinished");
         mAdapter.changeCursor(cursor);
-        //mAdapter.addAll(list);
-        //mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -96,7 +93,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(int id);
     }
 
     /**
@@ -105,7 +102,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(String id) {
+        public void onItemSelected(int id) {
         }
     };
 
@@ -121,14 +118,6 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
         super.onCreate(savedInstanceState);
         Log.d("VkLoader", "frag onCreate");
 
-        /*
-        mAdapter = new ArrayAdapter<VkProfile>(
-                getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                profiles
-        );
-        */
         mAdapter = new SimpleCursorAdapter(
                 getActivity(),                // Current context
                 mListItemLayout,  // Layout for a single row
@@ -139,10 +128,6 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
         );
 
         setListAdapter(mAdapter);
-
-        //Log.d("VkLoader", "Create VkProfilesLoader");
-        //VkProfilesLoader loader = new VkProfilesLoader(getActivity(), mAdapter);
-        //AsyncListViewLoader task = new AsyncListViewLoader(mAdapter, null, profiles);
     }
 
     @Override
@@ -190,11 +175,11 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
-        Log.d("VkLoader", "frag onListItemClick");
+        Log.d("VkLoader", "frag onListItemClick " + position + " " + id);
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        //mCallbacks.onItemSelected(Integer.toString(VkProfiles.ITEMS.get(position).id));
+        mCallbacks.onItemSelected((int) id);
     }
 
     @Override
