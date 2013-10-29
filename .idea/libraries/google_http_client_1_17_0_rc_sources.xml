@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="google-http-client-1.17.0-rc-sources">
-    <CLASSES />
-    <JAVADOC />
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/VKapiapp4/libraries/google-http-java-client/libs-sources/google-http-client-1.17.0-rc-sources.jar!/" />
-    </SOURCES>
-  </library>
-</component>

@@ -1,20 +1,17 @@
 package hsw.vkapiapp4;
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import hsw.vkapiapp4.loaders.VkProfilesLoader;
-import hsw.vkapiapp4.vk.VkProfile;
 
 /**
  * A list fragment representing a list of Items. This fragment
@@ -25,7 +22,8 @@ import hsw.vkapiapp4.vk.VkProfile;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<VkProfile>> {
+public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int VKPROFILES_LOADER = 0;
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -44,24 +42,49 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
-    private ArrayAdapter adapter;
+    private final Uri mDataUrl = Uri.parse("content://vkprofiles/");
+
+    private int mListItemLayout = android.R.layout.simple_list_item_activated_2;
+
+    private final String[] mProjection = {"_ID", "full_name"};
+
+    public final String[] mFromColumns = {"_ID", "full_name"};
+
+    public final int[] mToFields = {android.R.id.text1, android.R.id.text2};
+
+    SimpleCursorAdapter mAdapter;
 
     @Override
-    public Loader<List<VkProfile>> onCreateLoader(int i, Bundle bundle) {
+    public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
         Log.d("VkLoader", "onCreateLoader");
-        return new VkProfilesLoader(getActivity());
+        //return new VkProfilesLoader(getActivity());
+        switch (loaderID) {
+            case VKPROFILES_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        mDataUrl,
+                        mProjection,
+                        null,
+                        null,
+                        null
+                );
+            default:
+                return null;
+        }
     }
 
     @Override
-    public void onLoadFinished(Loader<List<VkProfile>> listLoader, List<VkProfile> list) {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.d("VkLoader", "onLoadFinished");
-        adapter.addAll(list);
-        adapter.notifyDataSetChanged();
+        mAdapter.changeCursor(cursor);
+        //mAdapter.addAll(list);
+        //mAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void onLoaderReset(Loader<List<VkProfile>> listLoader) {
+    public void onLoaderReset(Loader<Cursor> listLoader) {
         Log.d("VkLoader", "onLoaderReset");
+        mAdapter.changeCursor(null);
     }
 
     /**
@@ -98,20 +121,28 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
         super.onCreate(savedInstanceState);
         Log.d("VkLoader", "frag onCreate");
 
-        List<VkProfile> profiles = new ArrayList<VkProfile>();
-
-        adapter = new ArrayAdapter<VkProfile>(
+        /*
+        mAdapter = new ArrayAdapter<VkProfile>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 profiles
         );
+        */
+        mAdapter = new SimpleCursorAdapter(
+                getActivity(),                // Current context
+                mListItemLayout,  // Layout for a single row
+                null,                // No Cursor yet
+                mFromColumns,        // Cursor columns to use
+                mToFields,           // Layout fields to use
+                0                    // No flags
+        );
 
-        setListAdapter(adapter);
+        setListAdapter(mAdapter);
 
         //Log.d("VkLoader", "Create VkProfilesLoader");
-        //VkProfilesLoader loader = new VkProfilesLoader(getActivity(), adapter);
-        //AsyncListViewLoader task = new AsyncListViewLoader(adapter, null, profiles);
+        //VkProfilesLoader loader = new VkProfilesLoader(getActivity(), mAdapter);
+        //AsyncListViewLoader task = new AsyncListViewLoader(mAdapter, null, profiles);
     }
 
     @Override
@@ -131,7 +162,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
         super.onActivityCreated(savedInstanceState);
 
         Log.d("VkLoader", "frag onActivityCreated, initLoader");
-        getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(VKPROFILES_LOADER, null, this);
     }
 
     @Override

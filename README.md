@@ -1,4 +1,4 @@
 VKapiapp4
 =========
 
-Test Android 4+ app with VK api.
+Test Android 3.0+ app with VK api.

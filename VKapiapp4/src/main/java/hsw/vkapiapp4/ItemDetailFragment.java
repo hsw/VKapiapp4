@@ -27,6 +27,8 @@ public class ItemDetailFragment extends Fragment {
      */
     private VkProfile mItem;
 
+    //public String fields = "nickname,screen_name,sex,bdate,city,country,timezone,photo_50,photo_100,photo_200_orig,has_mobile,contacts,education,online,counters,relation,last_seen,status,can_write_private_message,can_see_all_posts,can_see_audio,can_post,universities,schools,verified";
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).

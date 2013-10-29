@@ -18,6 +18,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class VkProfilesProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
+        Log.d("VkLoader", "provider onCreate");
         return true;
     }
 
@@ -72,6 +74,7 @@ public class VkProfilesProvider extends ContentProvider {
         Map<String, String> map = new HashMap<String, String>();
         map.put("v", "5.2");
         map.put("user_ids", sb.toString());
+        Log.d("VkLoader", "provider content request: " + map);
         return new UrlEncodedContent(map);
     }
 
@@ -134,11 +137,12 @@ public class VkProfilesProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         List<VkProfile> profiles;
         int first_id = 1;
-        int last_id = 1000;
-        if (selectionArgs.length > 1) {
+        int last_id = 100;
+        if (selectionArgs != null && selectionArgs.length > 1) {
             first_id = Integer.parseInt(selectionArgs[0]);
             last_id = Integer.parseInt(selectionArgs[1]);
         }
+        Log.d("VkLoader", "provider query " + first_id + "-" + last_id + " rows, projection: " + Arrays.toString(projection));
 
         try {
             HttpRequestFactory requestFactory =
@@ -152,8 +156,6 @@ public class VkProfilesProvider extends ContentProvider {
 
             GenericUrl url = new GenericUrl("http://api.vk.com/method/users.get");
             HttpContent content = createProfileRequestContent(first_id, last_id);
-            Log.d("VkLoader", "URL = " + url);
-            Log.d("VkLoader", "Content = " + content);
             HttpRequest request = requestFactory.buildPostRequest(url, content);
             Log.d("VkLoader", "Send req");
             ApiResponse response = request.execute().parseAs(ApiResponse.class);
@@ -190,6 +192,7 @@ public class VkProfilesProvider extends ContentProvider {
      */
     @Override
     public String getType(Uri uri) {
+        Log.d("VkLoader", "provider getType");
         return null;
     }
 

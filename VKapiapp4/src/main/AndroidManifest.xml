@@ -5,7 +5,7 @@
     android:versionName="1.0">
 
     <uses-sdk
-        android:minSdkVersion="15"
+        android:minSdkVersion="11"
         android:targetSdkVersion="18" />
 
     <application
@@ -30,6 +30,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ItemListActivity" />
         </activity>
+
+        <provider
+            android:name=".providers.VkProfilesProvider"
+            android:authorities="vkprofiles" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
