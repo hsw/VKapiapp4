@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
+import hsw.vkapiapp4.providers.VkProfilesProvider;
+
 /**
  * A list fragment representing a list of Items. This fragment
  * also supports tablet devices by allowing list items to be given an
@@ -23,6 +25,7 @@ import android.widget.ListView;
  * interface.
  */
 public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    final String LOG_TAG = "VkLoader list";
     private static final int VKPROFILES_LOADER = 0;
 
     /**
@@ -42,21 +45,21 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
-    private final Uri mDataUrl = Uri.parse("content://vkprofiles/");
+    private final Uri mDataUrl = VkProfilesProvider.PROFILE_CONTENT_URI;
 
     private int mListItemLayout = android.R.layout.simple_list_item_activated_2;
 
-    private final String[] mProjection = {"_ID", "full_name"};
+    private final String[] mProjection = {"_ID", "full_name", "status"};
 
-    public final String[] mFromColumns = {"_ID", "full_name"};
+    private final String[] mFromColumns = {"_ID", "full_name"};
 
-    public final int[] mToFields = {android.R.id.text1, android.R.id.text2};
+    private final int[] mToFields = {android.R.id.text1, android.R.id.text2};
 
-    SimpleCursorAdapter mAdapter;
+    private SimpleCursorAdapter mAdapter;
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
-        Log.d("VkLoader", "onCreateLoader");
+        Log.d(LOG_TAG, "onCreateLoader");
         switch (loaderID) {
             case VKPROFILES_LOADER:
                 return new CursorLoader(
@@ -64,7 +67,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
                         mDataUrl,
                         mProjection,
                         null,
-                        new String[]{"101", "200"},
+                        null, // new String[]{"101", "200"},
                         null
                 );
             default:
@@ -74,13 +77,13 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d("VkLoader", "onLoadFinished");
+        Log.d(LOG_TAG, "onLoadFinished");
         mAdapter.changeCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> listLoader) {
-        Log.d("VkLoader", "onLoaderReset");
+        Log.d(LOG_TAG, "onLoaderReset");
         mAdapter.changeCursor(null);
     }
 
@@ -116,7 +119,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("VkLoader", "frag onCreate");
+        Log.d(LOG_TAG, "frag onCreate");
 
         mAdapter = new SimpleCursorAdapter(
                 getActivity(),                // Current context
@@ -133,7 +136,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d("VkLoader", "frag onViewCreated");
+        Log.d(LOG_TAG, "frag onViewCreated");
 
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null
@@ -146,14 +149,14 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Log.d("VkLoader", "frag onActivityCreated, initLoader");
+        Log.d(LOG_TAG, "frag onActivityCreated, initLoader");
         getLoaderManager().initLoader(VKPROFILES_LOADER, null, this);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        Log.d("VkLoader", "frag onAttach");
+        Log.d(LOG_TAG, "frag onAttach");
 
         // Activities containing this fragment must implement its callbacks.
         if (!(activity instanceof Callbacks)) {
@@ -166,7 +169,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.d("VkLoader", "frag onDetach");
+        Log.d(LOG_TAG, "frag onDetach");
 
         // Reset the active callbacks interface to the dummy implementation.
         mCallbacks = sDummyCallbacks;
@@ -175,7 +178,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         super.onListItemClick(listView, view, position, id);
-        Log.d("VkLoader", "frag onListItemClick " + position + " " + id);
+        Log.d(LOG_TAG, "frag onListItemClick " + position + " " + id);
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
@@ -185,7 +188,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d("VkLoader", "frag onSaveInstanceState");
+        Log.d(LOG_TAG, "frag onSaveInstanceState");
         if (mActivatedPosition != ListView.INVALID_POSITION) {
             // Serialize and persist the activated item position.
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);

@@ -2,6 +2,7 @@ package hsw.vkapiapp4.providers;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -28,6 +29,32 @@ import hsw.vkapiapp4.vk.ApiResponse;
 import hsw.vkapiapp4.vk.VkProfile;
 
 public class VkProfilesProvider extends ContentProvider {
+    final String LOG_TAG = "VkLoader provider";
+
+    static final String AUTHORITY = "vkprofiles";
+
+    static final String PROFILE_PATH = "profiles";
+
+    public static final Uri PROFILE_CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PROFILE_PATH);
+
+    static final String PROFILE_CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + PROFILE_PATH;
+
+    static final String PROFILE_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + "." + PROFILE_PATH;
+
+    static final int URI_PROFILES = 1;
+
+    // Uri с указанным ID
+    static final int URI_PROFILES_ID = 2;
+
+    // описание и создание UriMatcher
+    private static final UriMatcher uriMatcher;
+
+    static {
+        uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        uriMatcher.addURI(AUTHORITY, PROFILE_PATH, URI_PROFILES);
+        uriMatcher.addURI(AUTHORITY, PROFILE_PATH + "/#", URI_PROFILES_ID);
+    }
+
     static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     static final JsonFactory JSON_FACTORY = new JacksonFactory();
 
@@ -36,45 +63,47 @@ public class VkProfilesProvider extends ContentProvider {
      * This method is called for all registered content providers on the
      * application main thread at application launch time.  It must not perform
      * lengthy operations, or application startup will be delayed.
-     * <p/>
-     * <p>You should defer nontrivial initialization (such as opening,
-     * upgrading, and scanning databases) until the content provider is used
-     * (via {@link #query}, {@link #insert}, etc).  Deferred initialization
-     * keeps application startup fast, avoids unnecessary work if the provider
-     * turns out not to be needed, and stops database errors (such as a full
-     * disk) from halting application launch.
-     * <p/>
-     * <p>If you use SQLite, {@link android.database.sqlite.SQLiteOpenHelper}
-     * is a helpful utility class that makes it easy to manage databases,
-     * and will automatically defer opening until first use.  If you do use
-     * SQLiteOpenHelper, make sure to avoid calling
-     * {@link android.database.sqlite.SQLiteOpenHelper#getReadableDatabase} or
-     * {@link android.database.sqlite.SQLiteOpenHelper#getWritableDatabase}
-     * from this method.  (Instead, override
-     * {@link android.database.sqlite.SQLiteOpenHelper#onOpen} to initialize the
-     * database when it is first opened.)
      *
      * @return true if the provider was successfully loaded, false otherwise
      */
     @Override
     public boolean onCreate() {
-        Log.d("VkLoader", "provider onCreate");
+        Log.d(LOG_TAG, "provider onCreate");
         return true;
     }
 
-    private HttpContent createProfileRequestContent(int first_id, int last_id) {
-        StringBuilder sb = new StringBuilder();
+    private HttpContent createProfileRequestContent(int first_id, int last_id, String[] projection) {
+        StringBuilder sb_ids = new StringBuilder();
         for (int id = first_id; id <= last_id; id++) {
-            if (sb.length() > 0) {
-                sb.append(",");
+            if (sb_ids.length() > 0) {
+                sb_ids.append(",");
             }
-            sb.append(Integer.toString(id));
+            sb_ids.append(Integer.toString(id));
         }
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("v", "5.2");
-        map.put("user_ids", sb.toString());
-        Log.d("VkLoader", "provider content request: " + map);
+        map.put("user_ids", sb_ids.toString());
+
+        if (projection != null && projection.length > 0) {
+            StringBuilder sb_fields = new StringBuilder();
+            for (String p : projection) {
+                if (!p.equals("_ID") &&
+                        !p.equals("first_name") &&
+                        !p.equals("last_name") &&
+                        !p.equals("full_name")) {
+
+                    if (sb_fields.length() > 0) {
+                        sb_fields.append(",");
+                    }
+                    sb_fields.append(p);
+                }
+            }
+            if (sb_fields.length() > 0) {
+                map.put("fields", sb_fields.toString());
+            }
+        }
+        Log.d(LOG_TAG, "provider content request: " + map);
         return new UrlEncodedContent(map);
     }
 
@@ -83,40 +112,6 @@ public class VkProfilesProvider extends ContentProvider {
      * This method can be called from multiple threads, as described in
      * <a href="{@docRoot}guide/topics/fundamentals/processes-and-threads.html#Threads">Processes
      * and Threads</a>.
-     * <p/>
-     * Example client call:<p>
-     * <pre>// Request a specific record.
-     * Cursor managedCursor = managedQuery(
-     * ContentUris.withAppendedId(Contacts.People.CONTENT_URI, 2),
-     * projection,    // Which columns to return.
-     * null,          // WHERE clause.
-     * null,          // WHERE clause value substitution
-     * People.NAME + " ASC");   // Sort order.</pre>
-     * Example implementation:<p>
-     * <pre>// SQLiteQueryBuilder is a helper class that creates the
-     * // proper SQL syntax for us.
-     * SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
-     * <p/>
-     * // Set the table we're querying.
-     * qBuilder.setTables(DATABASE_TABLE_NAME);
-     * <p/>
-     * // If the query ends in a specific record number, we're
-     * // being asked for a specific record, so set the
-     * // WHERE clause in our query.
-     * if((URI_MATCHER.match(uri)) == SPECIFIC_MESSAGE){
-     * qBuilder.appendWhere("_id=" + uri.getPathLeafId());
-     * }
-     * <p/>
-     * // Make the query.
-     * Cursor c = qBuilder.query(mDb,
-     * projection,
-     * selection,
-     * selectionArgs,
-     * groupBy,
-     * having,
-     * sortOrder);
-     * c.setNotificationUri(getContext().getContentResolver(), uri);
-     * return c;</pre>
      *
      * @param uri           The URI to query. This will be the full URI sent by the client;
      *                      if the client is requesting a specific record, the URI will end in a record number
@@ -138,11 +133,25 @@ public class VkProfilesProvider extends ContentProvider {
         List<VkProfile> profiles;
         int first_id = 1;
         int last_id = 100;
-        if (selectionArgs != null && selectionArgs.length > 1) {
-            first_id = Integer.parseInt(selectionArgs[0]);
-            last_id = Integer.parseInt(selectionArgs[1]);
+
+        Log.d(LOG_TAG, "provider query " + uri.toString());
+
+        switch (uriMatcher.match(uri)) {
+            case URI_PROFILES:
+                if (selectionArgs != null && selectionArgs.length > 1) {
+                    first_id = Integer.parseInt(selectionArgs[0]);
+                    last_id = Integer.parseInt(selectionArgs[1]);
+                }
+                break;
+            case URI_PROFILES_ID:
+                int id = Integer.parseInt(uri.getLastPathSegment());
+                first_id = last_id = id;
+                Log.d(LOG_TAG, "id = " + id);
+                break;
+            default:
+                throw new IllegalArgumentException("Wrong URI: " + uri);
         }
-        Log.d("VkLoader", "provider query " + first_id + "-" + last_id + " rows, projection: " + Arrays.toString(projection));
+        Log.d(LOG_TAG, "provider query " + first_id + "-" + last_id + " rows, projection: " + Arrays.toString(projection));
 
         try {
             HttpRequestFactory requestFactory =
@@ -155,13 +164,13 @@ public class VkProfilesProvider extends ContentProvider {
                     );
 
             GenericUrl url = new GenericUrl("http://api.vk.com/method/users.get");
-            HttpContent content = createProfileRequestContent(first_id, last_id);
+            HttpContent content = createProfileRequestContent(first_id, last_id, projection);
             HttpRequest request = requestFactory.buildPostRequest(url, content);
-            Log.d("VkLoader", "Send req");
+            Log.d(LOG_TAG, "Send req");
             ApiResponse response = request.execute().parseAs(ApiResponse.class);
-            Log.d("VkLoader", "Parse response");
+            Log.d(LOG_TAG, "Parse response");
             profiles = response.profiles;
-            Log.d("VkLoader", "Got " + profiles.size() + " profiles");
+            Log.d(LOG_TAG, "Got " + profiles.size() + " profiles");
         } catch (Throwable t) {
             //t.printStackTrace();
             throw new RuntimeException(t);
@@ -192,7 +201,13 @@ public class VkProfilesProvider extends ContentProvider {
      */
     @Override
     public String getType(Uri uri) {
-        Log.d("VkLoader", "provider getType");
+        Log.d(LOG_TAG, "getType, " + uri.toString());
+        switch (uriMatcher.match(uri)) {
+            case URI_PROFILES:
+                return PROFILE_CONTENT_TYPE;
+            case URI_PROFILES_ID:
+                return PROFILE_CONTENT_ITEM_TYPE;
+        }
         return null;
     }
 

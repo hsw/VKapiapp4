@@ -10,6 +10,8 @@ import java.util.List;
 import hsw.vkapiapp4.vk.VkProfile;
 
 public class VkProfilesCursor extends MatrixCursor {
+    final String LOG_TAG = "VkLoader cursor";
+
     /**
      * Constructs a new cursor.
      *
@@ -18,19 +20,19 @@ public class VkProfilesCursor extends MatrixCursor {
      */
     public VkProfilesCursor(String[] columnNames) {
         super(columnNames);
-        Log.d("VkLoader", "cursor columnNames: " + Arrays.toString(columnNames));
+        Log.d(LOG_TAG, "cursor columnNames: " + Arrays.toString(columnNames));
     }
 
     public VkProfilesCursor(String[] columnNames, int initialCapacity) {
         super(columnNames, initialCapacity);
-        Log.d("VkLoader", "cursor columnNames: " + Arrays.toString(columnNames));
+        Log.d(LOG_TAG, "cursor columnNames: " + Arrays.toString(columnNames));
     }
 
     public void fill(final List<VkProfile> profiles) {
         final String[] columnNames = getColumnNames();
         final int columnNamesCount = columnNames.length;
         final ArrayList<String> row = new ArrayList<String>(columnNamesCount);
-        Log.d("VkLoader", "cursor fill " + profiles.size() + " profiles");
+        Log.d(LOG_TAG, "cursor fill " + profiles.size() + " profiles");
         for (VkProfile profile : profiles) {
             row.clear();
 
@@ -47,14 +49,14 @@ public class VkProfilesCursor extends MatrixCursor {
                 row.add(val);
             }
 
-            Log.d("VkLoader", "cursor addRow: " + row);
+            Log.d(LOG_TAG, "cursor addRow: " + row);
             addRow(row);
         }
     }
 
     @Override
     public int getType(int column) {
-        Log.d("VkLoader", "cursor getType " + column);
+        Log.d(LOG_TAG, "cursor getType " + column);
         return super.getType(column);
     }
 }
