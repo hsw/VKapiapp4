@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import hsw.vkapiapp4.providers.VkProfilesProvider;
@@ -37,13 +39,15 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
 
     private int mListItemLayout = android.R.layout.simple_list_item_activated_2;
 
-    private final String[] mProjection = {"_ID", "full_name", "nickname", "screen_name", "sex", "bdate", "city", "country", "timezone", "photo_50", "photo_100", "photo_200_orig", "has_mobile", "contacts", "education", "online", "counters", "relation", "last_seen", "status", "can_write_private_message", "can_see_all_posts", "can_see_audio", "can_post", "universities", "schools", "verified"};
+    private final String[] mProjection = {"_ID", "full_name", "nickname", "screen_name", "sex", "bdate", "city", "country", "timezone", "photo_50", "photo_100", "photo_200_orig", "has_mobile", "contacts", "education", "online", "counters", "relation", "last_seen", "status", "universities", "schools", "verified"};
 
     //private final String[] mFromColumns = {"_ID", "full_name"};
 
     //private final int[] mToFields = {android.R.id.text1, android.R.id.text2};
 
+    LayoutInflater inflater;
     private TextView tvId;
+    private TableLayout tableLayout;
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
@@ -66,8 +70,16 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.d(LOG_TAG, "onLoadFinished");
+
         if (cursor.moveToNext()) {
-            tvId.setText(cursor.getString(1));
+            for (int i = 0; i < mProjection.length; i++) {
+                Log.d(LOG_TAG, "add row " + mProjection[i] + " = " + cursor.getString(i));
+                TableRow tableRow = (TableRow) inflater.inflate(R.layout.table_row, tableLayout, false);
+                tableRow.setTag(i);
+                ((TextView) tableRow.findViewById(R.id.tvRowName)).setText(mProjection[i]);
+                ((TextView) tableRow.findViewById(R.id.tvRowValue)).setText(cursor.getString(i));
+                tableLayout.addView(tableRow);
+            }
         }
         //mAdapter.changeCursor(cursor);
     }
@@ -93,6 +105,8 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             id = getArguments().getInt(ARG_ITEM_ID);
             Log.d(LOG_TAG, "detail id=" + id);
         }
+
+        inflater = getLayoutInflater(savedInstanceState);
     }
 
     @Override
@@ -101,6 +115,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         View rootView = inflater.inflate(R.layout.fragment_item_detail, container, false);
 
         tvId = (TextView) rootView.findViewById(R.id.item_detail);
+        tableLayout = (TableLayout) rootView.findViewById(R.id.table_layout);
         // Show the dummy content as text in a TextView.
         if (id > 0) {
             tvId.setText(Integer.toString(id));
