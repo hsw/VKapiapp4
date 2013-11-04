@@ -3,7 +3,6 @@ package hsw.vkapiapp4.loaders;
 import android.database.MatrixCursor;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,25 +30,21 @@ public class VkProfilesCursor extends MatrixCursor {
     public void fill(final List<VkProfile> profiles) {
         final String[] columnNames = getColumnNames();
         final int columnNamesCount = columnNames.length;
-        final ArrayList<String> row = new ArrayList<String>(columnNamesCount);
+        final Object[] row = new Object[columnNamesCount];
         Log.d(LOG_TAG, "cursor fill " + profiles.size() + " profiles");
         for (VkProfile profile : profiles) {
-            row.clear();
-
             for (int i = 0; i < columnNamesCount; i++) {
                 final String colName = columnNames[i];
-                String val;
-                if (colName == "_ID") {
-                    val = Integer.toString(profile.id);
-                } else if (colName == "full_name") {
-                    val = profile.full_name();
+                if (colName.equals("_ID")) {
+                    row[i] = profile.id;
+                } else if (colName.equals("full_name")) {
+                    row[i] = profile.full_name();
                 } else {
-                    val = String.valueOf(profile.get(colName));
+                    row[i] = profile.get(colName);
                 }
-                row.add(val);
             }
 
-            Log.d(LOG_TAG, "cursor addRow: " + row);
+            Log.d(LOG_TAG, "cursor addRow: " + Arrays.toString(row));
             addRow(row);
         }
     }
