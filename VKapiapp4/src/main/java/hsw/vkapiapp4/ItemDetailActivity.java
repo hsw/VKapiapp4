@@ -40,8 +40,10 @@ public class ItemDetailActivity extends FragmentActivity {
             Bundle arguments = new Bundle();
             arguments.putInt(ItemDetailFragment.ARG_ITEM_ID,
                     getIntent().getIntExtra(ItemDetailFragment.ARG_ITEM_ID, 0));
-            ItemDetailFragment fragment = new ItemDetailFragment();
+
+            ItemPagerFragment fragment = new ItemPagerFragment();
             fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.item_detail_container, fragment)
                     .commit();

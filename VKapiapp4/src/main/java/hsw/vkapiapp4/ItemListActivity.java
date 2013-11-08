@@ -65,8 +65,10 @@ public class ItemListActivity extends FragmentActivity
             // fragment transaction.
             Bundle arguments = new Bundle();
             arguments.putInt(ItemDetailFragment.ARG_ITEM_ID, id);
-            ItemDetailFragment fragment = new ItemDetailFragment();
+            //ItemDetailFragment fragment = new ItemDetailFragment();
+            ItemPagerFragment fragment = new ItemPagerFragment();
             fragment.setArguments(arguments);
+
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.item_detail_container, fragment);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);

@@ -91,6 +91,14 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+    public static ItemDetailFragment newInstance(int page) {
+        ItemDetailFragment ItemDetailFragment = new ItemDetailFragment();
+        Bundle arguments = new Bundle();
+        arguments.putInt(ARG_ITEM_ID, page);
+        ItemDetailFragment.setArguments(arguments);
+        return ItemDetailFragment;
+    }
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -118,12 +126,15 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         Log.d(LOG_TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_item_detail, container, false);
 
-        tvId = (TextView) rootView.findViewById(R.id.item_detail);
+        //tvId = (TextView) rootView.findViewById(R.id.item_detail);
         tableLayout = (TableLayout) rootView.findViewById(R.id.table_layout);
         // Show the dummy content as text in a TextView.
+
+        /*
         if (id > 0) {
             tvId.setText(Integer.toString(id));
         }
+        */
 
         Log.d(LOG_TAG, "initLoader");
         getLoaderManager().initLoader(VKPROFILES_LOADER, null, this);
