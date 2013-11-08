@@ -25,7 +25,7 @@ import hsw.vkapiapp4.providers.VkProfilesProvider;
  */
 public class ItemDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     final String LOG_TAG = "VkLoader detail";
-    private static final int VKPROFILES_LOADER = 0;
+    private static final int VKPROFILES_LOADER = 1;
 
     /**
      * The fragment argument representing the item ID that this fragment
@@ -51,7 +51,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
-        Log.d(LOG_TAG, "onCreateLoader");
+        Log.d(LOG_TAG, "onCreateLoader " + loaderID);
         switch (loaderID) {
             case VKPROFILES_LOADER:
                 return new CursorLoader(
@@ -70,10 +70,18 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.d(LOG_TAG, "onLoadFinished");
+        fillTable(cursor);
+    }
 
-        if (cursor.moveToNext()) {
+    @Override
+    public void onLoaderReset(Loader<Cursor> listLoader) {
+        Log.d(LOG_TAG, "onLoaderReset");
+    }
+
+    private void fillTable(Cursor cursor) {
+        if (cursor.moveToFirst()) {
+            Log.d(LOG_TAG, "fillTable");
             for (int i = 0; i < mProjection.length; i++) {
-                Log.d(LOG_TAG, "add row " + mProjection[i] + " = " + cursor.getString(i));
                 TableRow tableRow = (TableRow) inflater.inflate(R.layout.table_row, tableLayout, false);
                 tableRow.setTag(i);
                 ((TextView) tableRow.findViewById(R.id.tvRowName)).setText(mProjection[i]);
@@ -81,13 +89,6 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                 tableLayout.addView(tableRow);
             }
         }
-        //mAdapter.changeCursor(cursor);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> listLoader) {
-        Log.d(LOG_TAG, "onLoaderReset");
-        //mAdapter.changeCursor(null);
     }
 
     /**
@@ -95,11 +96,13 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
      * fragment (e.g. upon screen orientation changes).
      */
     public ItemDetailFragment() {
+        Log.d(LOG_TAG, "default constructor");
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(LOG_TAG, "onCreate");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             id = getArguments().getInt(ARG_ITEM_ID);
@@ -112,6 +115,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_item_detail, container, false);
 
         tvId = (TextView) rootView.findViewById(R.id.item_detail);
@@ -121,6 +125,9 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             tvId.setText(Integer.toString(id));
         }
 
+        Log.d(LOG_TAG, "initLoader");
+        getLoaderManager().initLoader(VKPROFILES_LOADER, null, this);
+
         return rootView;
     }
 
@@ -128,7 +135,6 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Log.d(LOG_TAG, "frag onActivityCreated, initLoader");
-        getLoaderManager().initLoader(VKPROFILES_LOADER, null, this);
+        Log.d(LOG_TAG, "onActivityCreated");
     }
 }
