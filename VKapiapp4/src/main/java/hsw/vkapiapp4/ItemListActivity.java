@@ -23,7 +23,7 @@ import android.support.v4.app.FragmentTransaction;
  * to listen for item selections.
  */
 public class ItemListActivity extends FragmentActivity
-        implements ItemListFragment.Callbacks {
+        implements ItemListFragment.Callbacks, ItemPagerFragment.Callbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -31,10 +31,16 @@ public class ItemListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
 
+    private ItemListFragment listFragment;
+    private ItemPagerFragment pagerFragment;
+    private int itemId = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
+
+        listFragment = (ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.item_list);
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
@@ -45,9 +51,13 @@ public class ItemListActivity extends FragmentActivity
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
-            ((ItemListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.item_list))
-                    .setActivateOnItemClick(true);
+            listFragment.setActivateOnItemClick(true);
+
+            pagerFragment = new ItemPagerFragment();
+
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.item_detail_container, pagerFragment);
+            transaction.commit();
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
@@ -59,20 +69,30 @@ public class ItemListActivity extends FragmentActivity
      */
     @Override
     public void onItemSelected(int id) {
+        if (id == itemId)
+            return;
+        itemId = id;
+
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
+            /*
             Bundle arguments = new Bundle();
             arguments.putInt(ItemDetailFragment.ARG_ITEM_ID, id);
-            //ItemDetailFragment fragment = new ItemDetailFragment();
-            ItemPagerFragment fragment = new ItemPagerFragment();
-            fragment.setArguments(arguments);
+            */
 
+            //ItemDetailFragment fragment = new ItemDetailFragment();
+            //ItemPagerFragment fragment = new ItemPagerFragment();
+            //pagerFragment.setArguments(arguments);
+            pagerFragment.setCurrentItem(id);
+
+            /*
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.item_detail_container, fragment);
+            transaction.replace(R.id.item_detail_container, pagerFragment);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             transaction.commit();
+            */
 
         } else {
             // In single-pane mode, simply start the detail activity
@@ -81,5 +101,19 @@ public class ItemListActivity extends FragmentActivity
             detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_ID, id);
             startActivity(detailIntent);
         }
+    }
+
+    /**
+     * Callback for when an item has been selected.
+     *
+     * @param id
+     */
+    @Override
+    public void onPageSelected(int id) {
+        if (id == itemId)
+            return;
+        itemId = id;
+
+        listFragment.setCurrentItem(id);
     }
 }

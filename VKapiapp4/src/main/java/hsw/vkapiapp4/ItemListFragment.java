@@ -185,6 +185,11 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
         mCallbacks.onItemSelected((int) id);
     }
 
+    public void setCurrentItem(int id) {
+        Log.d(LOG_TAG, "setCurrentItem = " + id);
+        setActivatedPosition(id - 1);
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -208,10 +213,13 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     }
 
     private void setActivatedPosition(int position) {
+        final ListView listView = getListView();
         if (position == ListView.INVALID_POSITION) {
-            getListView().setItemChecked(mActivatedPosition, false);
+            listView.setItemChecked(mActivatedPosition, false);
+            listView.smoothScrollToPosition(mActivatedPosition);
         } else {
-            getListView().setItemChecked(position, true);
+            listView.setItemChecked(position, true);
+            listView.smoothScrollToPosition(position);
         }
 
         mActivatedPosition = position;
