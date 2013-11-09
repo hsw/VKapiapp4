@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.Map;
 
 import hsw.vkapiapp4.loaders.VkProfilesCursor;
-import hsw.vkapiapp4.vk.ApiResponse;
 import hsw.vkapiapp4.vk.VkProfile;
+import hsw.vkapiapp4.vk.getUsersApiResponse;
 
 public class VkProfilesProvider extends ContentProvider {
-    final String LOG_TAG = "VkLoader provider";
+    static final String LOG_TAG = "VkLoader provider";
 
     static final String AUTHORITY = "vkprofiles";
 
@@ -47,12 +47,12 @@ public class VkProfilesProvider extends ContentProvider {
     static final int URI_PROFILES_ID = 2;
 
     // описание и создание UriMatcher
-    private static final UriMatcher uriMatcher;
+    private static final UriMatcher sUriMatcher;
 
     static {
-        uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY, PROFILE_PATH, URI_PROFILES);
-        uriMatcher.addURI(AUTHORITY, PROFILE_PATH + "/#", URI_PROFILES_ID);
+        sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        sUriMatcher.addURI(AUTHORITY, PROFILE_PATH, URI_PROFILES);
+        sUriMatcher.addURI(AUTHORITY, PROFILE_PATH + "/#", URI_PROFILES_ID);
     }
 
     static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
@@ -136,7 +136,7 @@ public class VkProfilesProvider extends ContentProvider {
 
         Log.d(LOG_TAG, "provider query " + uri.toString());
 
-        switch (uriMatcher.match(uri)) {
+        switch (sUriMatcher.match(uri)) {
             case URI_PROFILES:
                 if (selectionArgs != null && selectionArgs.length > 1) {
                     first_id = Integer.parseInt(selectionArgs[0]);
@@ -167,7 +167,7 @@ public class VkProfilesProvider extends ContentProvider {
             HttpContent content = createProfileRequestContent(first_id, last_id, projection);
             HttpRequest request = requestFactory.buildPostRequest(url, content);
             Log.d(LOG_TAG, "Send req");
-            ApiResponse response = request.execute().parseAs(ApiResponse.class);
+            getUsersApiResponse response = request.execute().parseAs(getUsersApiResponse.class);
             Log.d(LOG_TAG, "Parse response");
             profiles = response.profiles;
             Log.d(LOG_TAG, "Got " + profiles.size() + " profiles");
@@ -202,7 +202,7 @@ public class VkProfilesProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         Log.d(LOG_TAG, "getType, " + uri.toString());
-        switch (uriMatcher.match(uri)) {
+        switch (sUriMatcher.match(uri)) {
             case URI_PROFILES:
                 return PROFILE_CONTENT_TYPE;
             case URI_PROFILES_ID:

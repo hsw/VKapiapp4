@@ -14,11 +14,11 @@ import hsw.vkapiapp4.providers.VkProfilesPagerAdapter;
 
 public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChangeListener {
 
-    final String LOG_TAG = "VkLoader pager";
+    static final String LOG_TAG = "VkLoader pager";
 
-    private PagerAdapter pagerAdapter;
+    private PagerAdapter mPagerAdapter;
     private ViewPager mViewPager;
-    private int id;
+    private int mProfileId;
 
     /**
      * The fragment's current callback object, which is notified of list item
@@ -49,12 +49,12 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
 
         Log.d(LOG_TAG, "onCreate");
 
-        pagerAdapter = new VkProfilesPagerAdapter(getFragmentManager());
+        mPagerAdapter = new VkProfilesPagerAdapter(getFragmentManager());
 
         Bundle args = getArguments();
         if (args != null && args.containsKey(ItemDetailFragment.ARG_ITEM_ID)) {
-            id = args.getInt(ItemDetailFragment.ARG_ITEM_ID);
-            Log.d(LOG_TAG, "detail id=" + id);
+            mProfileId = args.getInt(ItemDetailFragment.ARG_ITEM_ID);
+            Log.d(LOG_TAG, "detail mProfileId=" + mProfileId);
         }
     }
 
@@ -65,11 +65,11 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
         View v = inflater.inflate(R.layout.fragment_item_pager, container, false);
         mViewPager = (ViewPager) v.findViewById(R.id.pager);
         mViewPager.setOnPageChangeListener(this);
-        mViewPager.setAdapter(pagerAdapter);
+        mViewPager.setAdapter(mPagerAdapter);
 
-        if (id > 0) {
-            mViewPager.setCurrentItem(id - 1);
-            Log.d(LOG_TAG, "pager.setCurrentItem " + (id - 1));
+        if (mProfileId > 0) {
+            mViewPager.setCurrentItem(mProfileId - 1);
+            Log.d(LOG_TAG, "pager.setCurrentItem " + (mProfileId - 1));
         }
 
         return v;
@@ -90,7 +90,7 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
 
     public void setCurrentItem(int id) {
         Log.d(LOG_TAG, "setCurrentItem = " + id);
-        this.id = id;
+        this.mProfileId = id;
         if (mViewPager != null) {
             mViewPager.setCurrentItem(id - 1);
         }

@@ -24,7 +24,7 @@ import hsw.vkapiapp4.providers.VkProfilesProvider;
  * on handsets.
  */
 public class ItemDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    final String LOG_TAG = "VkLoader detail";
+    static final String LOG_TAG = "VkLoader detail";
     private static final int VKPROFILES_LOADER = 1;
 
     /**
@@ -33,21 +33,18 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
      */
     public static final String ARG_ITEM_ID = "item_id";
 
-    private int id;
+    private int mProfileId;
 
-    private final Uri mDataUrl = VkProfilesProvider.PROFILE_CONTENT_URI;
+    private static final Uri mDataUrl = VkProfilesProvider.PROFILE_CONTENT_URI;
 
-    private int mListItemLayout = android.R.layout.simple_list_item_activated_2;
-
-    private final String[] mProjection = {"_ID", "full_name", "nickname", "screen_name", "sex", "bdate", "city", "country", "timezone", "photo_50", "photo_100", "photo_200_orig", "has_mobile", "contacts", "education", "online", "counters", "relation", "last_seen", "status", "universities", "schools", "verified"};
+    private static final String[] mProjection = {"_ID", "full_name", "nickname", "screen_name", "sex", "bdate", "city", "country", "timezone", "photo_50", "photo_100", "photo_200_orig", "has_mobile", "contacts", "education", "online", "counters", "relation", "last_seen", "status", "universities", "schools", "verified"};
 
     //private final String[] mFromColumns = {"_ID", "full_name"};
 
-    //private final int[] mToFields = {android.R.id.text1, android.R.id.text2};
+    //private final int[] mToFields = {android.R.mProfileId.text1, android.R.mProfileId.text2};
 
-    LayoutInflater inflater;
-    private TextView tvId;
-    private TableLayout tableLayout;
+    private LayoutInflater mInflater;
+    private TableLayout mTableLayout;
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
@@ -56,7 +53,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             case VKPROFILES_LOADER:
                 return new CursorLoader(
                         getActivity(),
-                        mDataUrl.buildUpon().appendPath(Integer.toString(id)).build(),
+                        mDataUrl.buildUpon().appendPath(Integer.toString(mProfileId)).build(),
                         mProjection,
                         null,
                         null,
@@ -82,11 +79,11 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         if (cursor.moveToFirst()) {
             Log.d(LOG_TAG, "fillTable");
             for (int i = 0; i < mProjection.length; i++) {
-                TableRow tableRow = (TableRow) inflater.inflate(R.layout.table_row, tableLayout, false);
+                TableRow tableRow = (TableRow) mInflater.inflate(R.layout.table_row, mTableLayout, false);
                 tableRow.setTag(i);
                 ((TextView) tableRow.findViewById(R.id.tvRowName)).setText(mProjection[i]);
                 ((TextView) tableRow.findViewById(R.id.tvRowValue)).setText(cursor.getString(i));
-                tableLayout.addView(tableRow);
+                mTableLayout.addView(tableRow);
             }
         }
     }
@@ -113,11 +110,11 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         Log.d(LOG_TAG, "onCreate");
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            id = getArguments().getInt(ARG_ITEM_ID);
-            Log.d(LOG_TAG, "detail id=" + id);
+            mProfileId = getArguments().getInt(ARG_ITEM_ID);
+            Log.d(LOG_TAG, "detail mProfileId=" + mProfileId);
         }
 
-        inflater = getLayoutInflater(savedInstanceState);
+        mInflater = getLayoutInflater(savedInstanceState);
     }
 
     @Override
@@ -126,13 +123,13 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         Log.d(LOG_TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_item_detail, container, false);
 
-        //tvId = (TextView) rootView.findViewById(R.id.item_detail);
-        tableLayout = (TableLayout) rootView.findViewById(R.id.table_layout);
+        //tvId = (TextView) rootView.findViewById(R.mProfileId.item_detail);
+        mTableLayout = (TableLayout) rootView.findViewById(R.id.table_layout);
         // Show the dummy content as text in a TextView.
 
         /*
-        if (id > 0) {
-            tvId.setText(Integer.toString(id));
+        if (mProfileId > 0) {
+            tvId.setText(Integer.toString(mProfileId));
         }
         */
 

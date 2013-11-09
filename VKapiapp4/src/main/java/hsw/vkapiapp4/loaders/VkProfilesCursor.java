@@ -9,7 +9,7 @@ import java.util.List;
 import hsw.vkapiapp4.vk.VkProfile;
 
 public class VkProfilesCursor extends MatrixCursor {
-    final String LOG_TAG = "VkLoader cursor";
+    static final String LOG_TAG = "VkLoader cursor";
 
     /**
      * Constructs a new cursor.

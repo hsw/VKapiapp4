@@ -25,7 +25,7 @@ import hsw.vkapiapp4.providers.VkProfilesProvider;
  * interface.
  */
 public class ItemListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    final String LOG_TAG = "VkLoader list";
+    static final String LOG_TAG = "VkLoader list";
     private static final int VKPROFILES_LOADER = 0;
 
     /**
@@ -45,15 +45,15 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
 
-    private final Uri mDataUrl = VkProfilesProvider.PROFILE_CONTENT_URI;
+    private static final Uri mDataUrl = VkProfilesProvider.PROFILE_CONTENT_URI;
 
-    private int mListItemLayout = android.R.layout.simple_list_item_activated_2;
+    private static int mListItemLayout = android.R.layout.simple_list_item_activated_2;
 
-    private final String[] mProjection = {"_ID", "full_name", "status"};
+    private static final String[] mProjection = {"_ID", "full_name", "status"};
 
-    private final String[] mFromColumns = {"_ID", "full_name"};
+    private static final String[] mFromColumns = {"_ID", "full_name"};
 
-    private final int[] mToFields = {android.R.id.text1, android.R.id.text2};
+    private static final int[] mToFields = {android.R.id.text1, android.R.id.text2};
 
     private SimpleCursorAdapter mAdapter;
 

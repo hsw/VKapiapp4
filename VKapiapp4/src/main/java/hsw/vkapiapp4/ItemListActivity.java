@@ -31,16 +31,16 @@ public class ItemListActivity extends FragmentActivity
      */
     private boolean mTwoPane;
 
-    private ItemListFragment listFragment;
-    private ItemPagerFragment pagerFragment;
-    private int itemId = -1;
+    private ItemListFragment mListFragment;
+    private ItemPagerFragment mPagerFragment;
+    private int mItemId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
-        listFragment = (ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.item_list);
+        mListFragment = (ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.item_list);
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
@@ -51,12 +51,12 @@ public class ItemListActivity extends FragmentActivity
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
-            listFragment.setActivateOnItemClick(true);
+            mListFragment.setActivateOnItemClick(true);
 
-            pagerFragment = new ItemPagerFragment();
+            mPagerFragment = new ItemPagerFragment();
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.item_detail_container, pagerFragment);
+            transaction.replace(R.id.item_detail_container, mPagerFragment);
             transaction.commit();
         }
 
@@ -69,9 +69,9 @@ public class ItemListActivity extends FragmentActivity
      */
     @Override
     public void onItemSelected(int id) {
-        if (id == itemId)
+        if (id == mItemId)
             return;
-        itemId = id;
+        mItemId = id;
 
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
@@ -84,12 +84,12 @@ public class ItemListActivity extends FragmentActivity
 
             //ItemDetailFragment fragment = new ItemDetailFragment();
             //ItemPagerFragment fragment = new ItemPagerFragment();
-            //pagerFragment.setArguments(arguments);
-            pagerFragment.setCurrentItem(id);
+            //mPagerFragment.setArguments(arguments);
+            mPagerFragment.setCurrentItem(id);
 
             /*
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.item_detail_container, pagerFragment);
+            transaction.replace(R.id.item_detail_container, mPagerFragment);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             transaction.commit();
             */
@@ -110,10 +110,10 @@ public class ItemListActivity extends FragmentActivity
      */
     @Override
     public void onPageSelected(int id) {
-        if (id == itemId)
+        if (id == mItemId)
             return;
-        itemId = id;
+        mItemId = id;
 
-        listFragment.setCurrentItem(id);
+        mListFragment.setCurrentItem(id);
     }
 }

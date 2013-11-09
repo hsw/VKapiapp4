@@ -4,7 +4,7 @@ import com.google.api.client.util.Key;
 
 import java.util.List;
 
-public class ApiResponse {
+public class getUsersApiResponse {
     @Key("response")
     public List<VkProfile> profiles;
 }
