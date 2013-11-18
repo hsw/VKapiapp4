@@ -47,8 +47,6 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
 
     private static final Uri mDataUrl = VkProfilesProvider.PROFILE_CONTENT_URI;
 
-    private static int mListItemLayout = android.R.layout.simple_list_item_activated_2;
-
     private static final String[] mProjection = {"_ID", "full_name", "status"};
 
     private static final String[] mFromColumns = {"_ID", "full_name"};
@@ -78,12 +76,14 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.d(LOG_TAG, "onLoadFinished");
+        assert mAdapter != null;
         mAdapter.changeCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> listLoader) {
         Log.d(LOG_TAG, "onLoaderReset");
+        assert mAdapter != null;
         mAdapter.changeCursor(null);
     }
 
@@ -123,7 +123,7 @@ public class ItemListFragment extends ListFragment implements LoaderManager.Load
 
         mAdapter = new SimpleCursorAdapter(
                 getActivity(),                // Current context
-                mListItemLayout,  // Layout for a single row
+                android.R.layout.simple_list_item_activated_2,  // Layout for a single row
                 null,                // No Cursor yet
                 mFromColumns,        // Cursor columns to use
                 mToFields,           // Layout fields to use

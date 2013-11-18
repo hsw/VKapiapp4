@@ -79,6 +79,8 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         if (cursor.moveToFirst()) {
             Log.d(LOG_TAG, "fillTable");
             for (int i = 0; i < mProjection.length; i++) {
+                assert mInflater != null;
+                assert mTableLayout != null;
                 TableRow tableRow = (TableRow) mInflater.inflate(R.layout.table_row, mTableLayout, false);
                 tableRow.setTag(i);
                 ((TextView) tableRow.findViewById(R.id.tvRowName)).setText(mProjection[i]);
@@ -145,4 +147,5 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
 
         Log.d(LOG_TAG, "onActivityCreated");
     }
+
 }

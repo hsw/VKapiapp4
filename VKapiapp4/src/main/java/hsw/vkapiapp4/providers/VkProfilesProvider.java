@@ -25,11 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import hsw.vkapiapp4.loaders.VkProfilesCursor;
+import hsw.vkapiapp4.vk.GetUsersApiResponse;
 import hsw.vkapiapp4.vk.VkProfile;
-import hsw.vkapiapp4.vk.getUsersApiResponse;
 
 public class VkProfilesProvider extends ContentProvider {
     static final String LOG_TAG = "VkLoader provider";
+
+    static final String API_USERS_GET_URL = "http://api.vk.com/method/users.get";
 
     static final String AUTHORITY = "vkprofiles";
 
@@ -41,10 +43,10 @@ public class VkProfilesProvider extends ContentProvider {
 
     static final String PROFILE_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + "." + PROFILE_PATH;
 
-    static final int URI_PROFILES = 1;
+    private static final int URI_PROFILES = 1;
 
     // Uri с указанным ID
-    static final int URI_PROFILES_ID = 2;
+    private static final int URI_PROFILES_ID = 2;
 
     // описание и создание UriMatcher
     private static final UriMatcher sUriMatcher;
@@ -55,8 +57,19 @@ public class VkProfilesProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, PROFILE_PATH + "/#", URI_PROFILES_ID);
     }
 
-    static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-    static final JsonFactory JSON_FACTORY = new JacksonFactory();
+    private static final GenericUrl mUrl = new GenericUrl(API_USERS_GET_URL);
+
+    private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+    private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+
+    private static final HttpRequestFactory requestFactory =
+            HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
+                @Override
+                public void initialize(HttpRequest request) {
+                    request.setParser(new JsonObjectParser(JSON_FACTORY));
+                }
+            }
+            );
 
     /**
      * Implement this to initialize your content provider on startup.
@@ -154,20 +167,10 @@ public class VkProfilesProvider extends ContentProvider {
         Log.d(LOG_TAG, "provider query " + first_id + "-" + last_id + " rows, projection: " + Arrays.toString(projection));
 
         try {
-            HttpRequestFactory requestFactory =
-                    HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
-                        @Override
-                        public void initialize(HttpRequest request) {
-                            request.setParser(new JsonObjectParser(JSON_FACTORY));
-                        }
-                    }
-                    );
-
-            GenericUrl url = new GenericUrl("http://api.vk.com/method/users.get");
             HttpContent content = createProfileRequestContent(first_id, last_id, projection);
-            HttpRequest request = requestFactory.buildPostRequest(url, content);
+            HttpRequest request = requestFactory.buildPostRequest(mUrl, content);
             Log.d(LOG_TAG, "Send req");
-            getUsersApiResponse response = request.execute().parseAs(getUsersApiResponse.class);
+            GetUsersApiResponse response = request.execute().parseAs(GetUsersApiResponse.class);
             Log.d(LOG_TAG, "Parse response");
             profiles = response.profiles;
             Log.d(LOG_TAG, "Got " + profiles.size() + " profiles");

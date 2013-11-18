@@ -16,6 +16,12 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
 
     static final String LOG_TAG = "VkLoader pager";
 
+    /**
+     * The serialization (saved instance state) Bundle key representing the
+     * activated item position. Only used on tablets.
+     */
+    private static final String STATE_ACTIVATED_POSITION = "current_position";
+
     private PagerAdapter mPagerAdapter;
     private ViewPager mViewPager;
     private int mProfileId;
@@ -51,10 +57,17 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
 
         mPagerAdapter = new VkProfilesPagerAdapter(getFragmentManager());
 
-        Bundle args = getArguments();
-        if (args != null && args.containsKey(ItemDetailFragment.ARG_ITEM_ID)) {
-            mProfileId = args.getInt(ItemDetailFragment.ARG_ITEM_ID);
-            Log.d(LOG_TAG, "detail mProfileId=" + mProfileId);
+        // Restore the previously serialized activated item position.
+        if (savedInstanceState != null
+                && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
+            mProfileId = savedInstanceState.getInt(STATE_ACTIVATED_POSITION);
+            Log.d(LOG_TAG, "savedInstanceState mProfileId=" + mProfileId);
+        } else {
+            Bundle args = getArguments();
+            if (args != null && args.containsKey(ItemDetailFragment.ARG_ITEM_ID)) {
+                mProfileId = args.getInt(ItemDetailFragment.ARG_ITEM_ID);
+                Log.d(LOG_TAG, "args mProfileId=" + mProfileId);
+            }
         }
     }
 
@@ -93,6 +106,16 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
         this.mProfileId = id;
         if (mViewPager != null) {
             mViewPager.setCurrentItem(id - 1);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(LOG_TAG, "onSaveInstanceState");
+        if (mViewPager != null) {
+            // Serialize and persist the activated item position.
+            outState.putInt(STATE_ACTIVATED_POSITION, mViewPager.getCurrentItem());
         }
     }
 
