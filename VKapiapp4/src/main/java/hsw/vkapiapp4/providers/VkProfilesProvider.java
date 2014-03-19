@@ -19,6 +19,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -64,11 +65,11 @@ public class VkProfilesProvider extends ContentProvider {
 
     private static final HttpRequestFactory requestFactory =
             HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
-                @Override
-                public void initialize(HttpRequest request) {
-                    request.setParser(new JsonObjectParser(JSON_FACTORY));
-                }
-            }
+                                                    @Override
+                                                    public void initialize(HttpRequest request) {
+                                                        request.setParser(new JsonObjectParser(JSON_FACTORY));
+                                                    }
+                                                }
             );
 
     /**
@@ -174,7 +175,7 @@ public class VkProfilesProvider extends ContentProvider {
             Log.d(LOG_TAG, "Parse response");
             profiles = response.profiles;
             Log.d(LOG_TAG, "Got " + profiles.size() + " profiles");
-        } catch (Throwable t) {
+        } catch (IOException t) {
             //t.printStackTrace();
             throw new RuntimeException(t);
         }

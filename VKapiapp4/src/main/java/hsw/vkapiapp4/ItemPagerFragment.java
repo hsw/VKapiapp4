@@ -53,7 +53,7 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(LOG_TAG, "onCreate");
+        Log.d(LOG_TAG, "onCreate " + this);
 
         mPagerAdapter = new VkProfilesPagerAdapter(getFragmentManager());
 
@@ -82,7 +82,7 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
 
         if (mProfileId > 0) {
             mViewPager.setCurrentItem(mProfileId - 1);
-            Log.d(LOG_TAG, "pager.setCurrentItem " + (mProfileId - 1));
+            Log.d(LOG_TAG, "pager.setCurrentItem " + (mProfileId - 1) + " => " + mViewPager.getCurrentItem());
         }
 
         return v;
@@ -93,19 +93,19 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
         super.onAttach(activity);
         Log.d(LOG_TAG, "frag onAttach");
 
-        // Activities containing this fragment must implement its callbacks.
-        if (!(activity instanceof Callbacks)) {
-            throw new IllegalStateException("Activity must implement fragment's callbacks.");
+        // Activities containing this fragment should implement its callbacks.
+        if (activity instanceof Callbacks) {
+            //throw new IllegalStateException("Activity must implement fragment's callbacks.");
+            mCallbacks = (Callbacks) activity;
         }
-
-        mCallbacks = (Callbacks) activity;
     }
 
     public void setCurrentItem(int id) {
         Log.d(LOG_TAG, "setCurrentItem = " + id);
-        this.mProfileId = id;
+        mProfileId = id;
         if (mViewPager != null) {
             mViewPager.setCurrentItem(id - 1);
+            Log.d(LOG_TAG, " => " + mViewPager.getCurrentItem());
         }
     }
 
@@ -115,7 +115,7 @@ public class ItemPagerFragment extends Fragment implements ViewPager.OnPageChang
         Log.d(LOG_TAG, "onSaveInstanceState");
         if (mViewPager != null) {
             // Serialize and persist the activated item position.
-            outState.putInt(STATE_ACTIVATED_POSITION, mViewPager.getCurrentItem());
+            outState.putInt(STATE_ACTIVATED_POSITION, mViewPager.getCurrentItem() + 1);
         }
     }
 

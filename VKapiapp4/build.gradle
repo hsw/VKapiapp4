@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.+'
+        classpath 'com.android.tools.build:gradle:0.9.+'
     }
 }
 apply plugin: 'android'
@@ -14,7 +14,7 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.0"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 11
@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.0.0'
+    compile 'com.android.support:support-v4:19.0.1'
     compile files('/libraries/google-http-java-client/libs/google-http-client-1.17.0-rc.jar')
     compile files('/libraries/google-http-java-client/libs/google-http-client-jackson2-1.17.0-rc.jar')
     compile files('/libraries/google-http-java-client/libs/jackson-core-2.1.3.jar')
